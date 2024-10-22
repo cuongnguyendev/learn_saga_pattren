@@ -1,0 +1,16 @@
+﻿global using MassTransit;
+global using MassTransit.EntityFrameworkCoreIntegration;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using Microsoft.EntityFrameworkCore.Metadata.Internal;
+global using StateMachineWorkerService;
+global using StateMachineWorkerService.CustomSate;
+global using StateMachineWorkerService.Data;
+global using Shared.Models;
+global using Shared.Infrastructure;
+global using Shared.Orchestration;
+global using System.ComponentModel.DataAnnotations.Schema;
+global using System.Reflection;
+global using System.Text;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
