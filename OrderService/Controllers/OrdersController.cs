@@ -58,7 +58,37 @@ namespace OrderService.Controllers
 
             return Ok();
         }
+        [HttpPost]
+        public async Task<IActionResult> CancelOrder(CancelOrderRequest request)
+        {
+            var order = await _context.Orders.FindAsync(request.OrderId);
 
+            if (order == null)
+            {
+                return NotFound($"Order with ID {request.OrderId} not found.");
+            }
+
+            if (order.Status == OrderStatus.Shipped) // Assuming 'Shipped' is the state after shipping is completed
+            {
+                return BadRequest("Order cannot be cancelled after it has been shipped.");
+            }
+
+            // Generate a new CorrelationId for the cancellation event
+            var correlationId = Guid.NewGuid();
+
+            // Pass the correlationId to the constructor
+            var cancellationEvent = new OrchestrationOrderCancellationEvent
+            {
+                OrderId = order.Id,
+                Reason = request.Reason
+            };
+
+            // Send cancellation event
+            var sendEndpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:{RabbitQueueName.OrderSaga}"));
+            await sendEndpoint.Send<IOrchestrationOrderCancellationEvent>(cancellationEvent);
+
+            return Ok("Order cancellation request has been sent successfully.");
+        }
         private async Task<Order> AddOrderAsync(OrderCreateRequest request)
         {
             Order order = new()

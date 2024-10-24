@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StateMachineWorkerService.Data;
 
@@ -11,9 +12,11 @@ using StateMachineWorkerService.Data;
 namespace StateMachineWorkerService.Migrations
 {
     [DbContext(typeof(OrderStateDbContext))]
-    partial class OrderStateDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241024023908_f")]
+    partial class f
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,15 +55,55 @@ namespace StateMachineWorkerService.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<string>("OrderItems")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("CorrelationId");
 
                     b.ToTable("OrderStateInstance");
+                });
+
+            modelBuilder.Entity("StateMachineWorkerService.Models.ItemOrders", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("OrderStateInstanceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderStateInstanceId");
+
+                    b.ToTable("ItemOrders");
+                });
+
+            modelBuilder.Entity("StateMachineWorkerService.Models.ItemOrders", b =>
+                {
+                    b.HasOne("StateMachineWorkerService.CustomSate.OrderStateInstance", "OrderStateInstance")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderStateInstanceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrderStateInstance");
+                });
+
+            modelBuilder.Entity("StateMachineWorkerService.CustomSate.OrderStateInstance", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }

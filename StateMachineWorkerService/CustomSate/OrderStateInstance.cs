@@ -1,4 +1,6 @@
-﻿namespace StateMachineWorkerService.CustomSate
+﻿using StateMachineWorkerService.Models;
+
+namespace StateMachineWorkerService.CustomSate
 {
     public class OrderStateInstance : SagaStateMachineInstance
     {
@@ -9,7 +11,7 @@
         public string CurrentState { get; set; }
         public string BuyerId { get; set; }
         public int OrderId { get; set; }
-
+        public string OrderItems {  get; set; }
         public string CardName { get; set; }
         public string CardNumber { get; set; }
         public string Expiration { get; set; }

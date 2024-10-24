@@ -3,8 +3,11 @@ namespace StateMachineWorkerService.CustomState
 {
     using MassTransit;
     using MassTransit.Internals;
+    using Newtonsoft.Json;
     using Shared.Orchestration;
+    using StateMachineWorkerService.Models;
     using System;
+    using System.Text.Json;
 
     /// <summary>
     /// This class is where I manage the entire distributed transaction.
@@ -21,9 +24,13 @@ namespace StateMachineWorkerService.CustomState
         public Event<IOrchestrationShippingRequestedEvent> ShippingRequestedEvent { get; set; }
         public Event<IOrchestrationShippingCompletedEvent> ShippingCompletedEvent { get; set; }
         public Event<IOrchestrationShippingFailedEvent> ShippingFailedEvent { get; set; }
+        public Event<IOrchestrationOrderCancellationEvent> OrderCancellationEvent { get; set; }
+
+
 
         // States
         public State OrderCreated { get; set; }
+        public State Cancelled { get; set; }
         public State StockReserved { get; set; }
         public State StockNotReserved { get; set; }
         public State PaymentCompleted { get; set; }
@@ -79,6 +86,11 @@ namespace StateMachineWorkerService.CustomState
             {
                 eventCorrelationConfigurator.CorrelateBy<int>(instance => instance.OrderId, context => context.Message.OrderId);
             });
+            Event(() => OrderCancellationEvent, eventCorrelationConfigurator =>
+            {
+                eventCorrelationConfigurator.CorrelateBy<int>(instance => instance.OrderId, context => context.Message.OrderId);
+            });
+
             // Handling Order Created Event
             Initially(
                 When(OrderCreatedRequestEvent)
@@ -92,6 +104,7 @@ namespace StateMachineWorkerService.CustomState
                         context.Saga.CVV = context.Message.Payment.CVV;
                         context.Saga.Expiration = context.Message.Payment.Expiration;
                         context.Saga.TotalPrice = context.Message.Payment.TotalPrice;
+                        context.Saga.OrderItems= System.Text.Json.JsonSerializer.Serialize(context.Message.OrderItems);
                     })
                     .Publish(context => new OrchestrationOrderCreatedEvent(context.CorrelationId.Value)
                     {
@@ -103,6 +116,7 @@ namespace StateMachineWorkerService.CustomState
             // While in OrderCreated state
             During(OrderCreated,
                 When(StockReservedEvent)
+                
                     .Send(new Uri($"queue:{RabbitQueueName.PaymentStockReservedRequestQueueName}"), context => new OrchestrationStockReservedRequestPayment(context.Message.CorrelationId)
                     {
                         OrderId=context.Saga.OrderId,
@@ -127,6 +141,7 @@ namespace StateMachineWorkerService.CustomState
             // While in StockReserved state
             During(StockReserved,
                 When(PaymentCompletedEvent)
+            
                     .Publish(context => new OrchestrationOrderRequestCompletedEvent(context.Saga.OrderId))
                     .TransitionTo(PaymentCompleted),
    
@@ -140,35 +155,74 @@ namespace StateMachineWorkerService.CustomState
             // While in PaymentCompleted state, handle shipping requests
             During(PaymentCompleted,
                 When(ShippingRequestedEvent)
-                    .Send(new Uri($"queue:{RabbitQueueName.ShippingRequestQueueName}"), context => new ShippingRequestMessage
-                    {
-                        OrderId = context.Saga.OrderId,          
-                    })
+                .Send(new Uri($"queue:{RabbitQueueName.ShippingRequestQueueName}"), context => new ShippingRequestMessage
+                {
+                    OrderId = context.Saga.OrderId,          
+                })
 
-                    .TransitionTo(ShippingRequested)
+                .TransitionTo(ShippingRequested)
             );
 
             //// While in ShippingRequested state
             During(ShippingRequested,
                 When(ShippingCompletedEvent)
-                    .Then(context =>
-                    {
-                        Console.WriteLine($"OrchestrationOrderShippingRequestCompletedEvent After : {context.Saga}");
-                    })
                     .Publish(context => new OrchestrationOrderShippingRequestCompletedEvent(context.Saga.OrderId))
                     .TransitionTo(ShippingCompleted)
                    .Finalize(),
 
                 When(ShippingFailedEvent)
                     .Publish(context => new OrchestrationOrderShippingRequestFailedEvent(context.Saga.OrderId, context.Message.Reason))
-                     .Then(context =>
-                     {
-                         Console.WriteLine($"OrchestrationOrderShippingRequestFailedEvent After : {context.Saga}");
-                     })
+                    .Send(new Uri($"queue:{RabbitQueueName.StockRollBackMessageQueueName}"), context => new OrchestrationStockRollBackMessage(System.Text.Json.JsonSerializer.Deserialize<List<OrderItemMessage>>(context.Saga.OrderItems)))
                     .TransitionTo(ShippingFailed)
             );
+            DuringAny(
+    When(OrderCancellationEvent)
+        .IfElse(context => context.Saga.CurrentState == "ShippingCompleted" || context.Saga.CurrentState == "ShippingFailed" || context.Saga.CurrentState == "Cancelled",
+            shippingContext => shippingContext
+                .Then(context =>
+                {
+                    // Optionally: Log or notify that the cancellation cannot proceed
+                    Console.WriteLine($"Cancellation denied: Order {context.Saga.OrderId} has already been shipped.");
+                }),
+            cancellableContext => cancellableContext
+                // Proceed with normal cancellation logic
+                .IfElse(context => context.Saga.CurrentState == "StockReserved",
+                    reservedContext => reservedContext
+                        .Send(new Uri($"queue:{RabbitQueueName.StockRollBackMessageQueueName}"), reservedContext => new OrchestrationStockRollBackMessage(System.Text.Json.JsonSerializer.Deserialize<List<OrderItemMessage>>(reservedContext.Saga.OrderItems)))
+                         //.Publish(reservedContext => new OrchestrationOrderCancelledEvent(reservedContext.Saga.OrderId))
+                         .Then(context =>
+                         {
+                             // Optionally: Log or notify that the cancellation cannot proceed
+                             Console.WriteLine($"Cancellation denied: Order {context.Saga.OrderId} has already been shipped.");
+                         })
+                        .TransitionTo(Cancelled),
+                    paymentContext => paymentContext.IfElse(
+                        paymentCompletedContext => paymentCompletedContext.Saga.CurrentState == "PaymentCompleted",
+                        paymentCompletedContext => paymentCompletedContext
+                             // .Send(new Uri($"queue:{RabbitQueueName.PaymentRollBackQueueName}"), paymentCompletedContext => new OrchestrationPaymentRollBackMessage(paymentCompletedContext.Saga.OrderId))
+                             // .Publish(paymentCompletedContext => new OrchestrationOrderCancelledEvent(paymentCompletedContext.Saga.OrderId))
+                             .Then(context =>
+                             {
+                                 // Optionally: Log or notify that the cancellation cannot proceed
+                                 Console.WriteLine($"Cancellation denied: Order {context.Saga.OrderId} has already been shipped.");
+                             })
+                            .TransitionTo(Cancelled),
+                        otherContext => otherContext
+                             // .Publish(otherContext => new OrchestrationOrderCancelledEvent(otherContext.Saga.OrderId))
+                             .Then(context =>
+                             {
+                                 // Optionally: Log or notify that the cancellation cannot proceed
+                                 Console.WriteLine($"Cancellation denied: Order {context.Saga.OrderId} has already been shipped.");
+                             })
+                            .TransitionTo(Cancelled)
+                    )
+                )
+        )
+);
+
 
             SetCompletedWhenFinalized(); // Removes the completed tasks from the database when the state is finalized.
         }
     }
+
 }

@@ -12,8 +12,8 @@ using StateMachineWorkerService.Data;
 namespace StateMachineWorkerService.Migrations
 {
     [DbContext(typeof(OrderStateDbContext))]
-    [Migration("20241016041042_frist")]
-    partial class frist
+    [Migration("20241024043416_ff")]
+    partial class ff
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,35 +31,32 @@ namespace StateMachineWorkerService.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BuyerId")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("CVV")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CardName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CardNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CurrentState")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Expiration")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
+
+                    b.Property<string>("OrderItems")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
