@@ -67,15 +67,10 @@ namespace OrderService.Controllers
             {
                 return NotFound($"Order with ID {request.OrderId} not found.");
             }
-
-            if (order.Status == OrderStatus.Shipped) // Assuming 'Shipped' is the state after shipping is completed
+            if (new[] { OrderStatus.ShippingCompleted, OrderStatus.ShippingFailed, OrderStatus.Canceled,OrderStatus.Failed }.Contains(order.Status))
             {
-                return BadRequest("Order cannot be cancelled after it has been shipped.");
+                return BadRequest(order.Status);
             }
-
-            // Generate a new CorrelationId for the cancellation event
-            var correlationId = Guid.NewGuid();
-
             // Pass the correlationId to the constructor
             var cancellationEvent = new OrchestrationOrderCancellationEvent
             {

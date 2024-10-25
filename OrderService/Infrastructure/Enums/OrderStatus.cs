@@ -4,9 +4,9 @@
     {
         Suspend,
         Completed,       
-        Fail,
-        Shipped,
+        Failed,
         ShippingCompleted, 
-        ShippingFailed    
+        ShippingFailed,
+        Canceled
     }
 }

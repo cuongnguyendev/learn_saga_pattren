@@ -34,10 +34,10 @@ namespace ShipService.Controllers
             return Ok(ships);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStatus(int id, [FromBody] ShipStatus newStatus, CancellationToken cancellationToken)
+        [HttpPut("{orderId}")]
+        public async Task<IActionResult> UpdateStatus(int orderId, [FromBody] ShipStatus newStatus, CancellationToken cancellationToken)
         {
-            var shipUpdated = await UpdateStatusAsync(id, newStatus, cancellationToken);
+            var shipUpdated = await UpdateStatusAsync(orderId, newStatus, cancellationToken);
 
             if (shipUpdated == null)
             {
@@ -55,10 +55,10 @@ namespace ShipService.Controllers
             return NoContent();
         }
 
-        private async Task<Ship> UpdateStatusAsync(int id, ShipStatus newStatus, CancellationToken cancellationToken)
+        private async Task<Ship> UpdateStatusAsync(int orderId, ShipStatus newStatus, CancellationToken cancellationToken)
         {
-            var ship = await _context.Ships.FindAsync(new object[] { id }, cancellationToken);
-            if (ship == null)
+            var ship = await _context.Ships.Where(s=>s.OrderId==orderId).FirstOrDefaultAsync();
+            if (ship == null || ship.Status!=ShipStatus.Suspend)
             {
                 return null;
             }

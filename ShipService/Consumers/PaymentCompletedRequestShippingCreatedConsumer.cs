@@ -25,18 +25,6 @@ namespace ShipService.Consumers
         {
             var orderId = context.Message.OrderId;
             var shipId = await CreateShipEntryAsync(orderId);
-            if (shipId != null)
-            {
-                Console.WriteLine($"Shipping created for Order ID: {context.Message.OrderId}");
-                if (orderId % 2 == 0)
-                {
-                  //  await _publishEndpoint.Publish(new OrchestrationShippingCompletedEvent(context.Message.CorrelationId));
-                }
-                else
-                {
-                 //   await _publishEndpoint.Publish(new OrchestrationPaymentFailedEvent(context.Message.CorrelationId) { Reason = "Shipping faild"});
-                }
-            }
         }
         private async Task<Ship> CreateShipEntryAsync(int orderId)
         {

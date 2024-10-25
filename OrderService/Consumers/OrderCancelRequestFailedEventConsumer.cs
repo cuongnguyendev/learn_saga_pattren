@@ -5,24 +5,23 @@ using Shared.Orchestration;
 
 namespace OrderService.Consumers
 {
-    public class OrderRequestFailedEventConsumer : IConsumer<IOrchestrationOrderRequestFailedEvent>
+    public class OrderCancelRequestFailedEventConsumer:IConsumer<IOrchestrationOrderCancelRequestFaildedEvent>
     {
         private readonly AppDbContext _context;
-        private readonly ILogger<OrderRequestFailedEventConsumer> _logger;
+        private readonly ILogger<OrderCancelRequestFailedEventConsumer> _logger;
 
-        public OrderRequestFailedEventConsumer(AppDbContext context, ILogger<OrderRequestFailedEventConsumer> logger)
+        public OrderCancelRequestFailedEventConsumer(AppDbContext context, ILogger<OrderCancelRequestFailedEventConsumer> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        public async Task Consume(ConsumeContext<IOrchestrationOrderRequestFailedEvent> context)
+        public async Task Consume(ConsumeContext<IOrchestrationOrderCancelRequestFaildedEvent> context)
         {
             var order = await _context.Orders.FindAsync(context.Message.OrderId);
 
             if (order != null)
             {
-                order.Status = OrderStatus.Failed;
                 order.FailMessage = context.Message.Reason;
                 await _context.SaveChangesAsync();
 
@@ -33,5 +32,5 @@ namespace OrderService.Consumers
                 _logger.LogError($"Order (Id={context.Message.OrderId}) not found");
             }
         }
-    } 
+    }
 }

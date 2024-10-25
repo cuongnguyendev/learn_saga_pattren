@@ -19,6 +19,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddMassTransit(busRegistrationConfigurator =>
 {
     busRegistrationConfigurator.AddConsumer<PaymentCompletedRequestShippingCreatedConsumer>();
+    busRegistrationConfigurator.AddConsumer<OrderCanceledRequestShippingConsumer>();
+
 
     busRegistrationConfigurator.UsingRabbitMq((busRegistrationContext, rabbitMqBusFactoryConfigurator) =>
     {
@@ -32,7 +34,10 @@ builder.Services.AddMassTransit(busRegistrationConfigurator =>
         {
             endpoint.ConfigureConsumer<PaymentCompletedRequestShippingCreatedConsumer>(busRegistrationContext);
         });
-       
+        rabbitMqBusFactoryConfigurator.ReceiveEndpoint(RabbitQueueName.OrderCanceledRequestShippingQueueName, endpoint =>
+        {
+            endpoint.ConfigureConsumer<OrderCanceledRequestShippingConsumer>(busRegistrationContext);
+        });
     });
 });
 var app = builder.Build();

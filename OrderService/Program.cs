@@ -22,6 +22,8 @@ builder.Services.AddMassTransit(busRegistrationConfigurator =>
     busRegistrationConfigurator.AddConsumer<OrderRequestFailedEventConsumer>();
     busRegistrationConfigurator.AddConsumer<OrderShippingRequestCompletedEventConsumer>();
     busRegistrationConfigurator.AddConsumer<OrderShippingRequestFailedEventConsumer>();
+    busRegistrationConfigurator.AddConsumer<OrderCancelRequestCompletedEventConsumer>();
+    busRegistrationConfigurator.AddConsumer<OrderCancelRequestFailedEventConsumer>();
 
     busRegistrationConfigurator.UsingRabbitMq((busRegistrationContext, rabbitMqBusFactoryConfigurator) =>
     {
@@ -47,6 +49,14 @@ builder.Services.AddMassTransit(busRegistrationConfigurator =>
         rabbitMqBusFactoryConfigurator.ReceiveEndpoint(RabbitQueueName.ShippingFailedEventQueueName, endpoint =>
         {
             endpoint.ConfigureConsumer<OrderShippingRequestFailedEventConsumer>(busRegistrationContext);
+        });
+        rabbitMqBusFactoryConfigurator.ReceiveEndpoint(RabbitQueueName.OrderCancelRequestCompletedEventQueueName, endpoint =>
+        {
+            endpoint.ConfigureConsumer<OrderCancelRequestCompletedEventConsumer>(busRegistrationContext);
+        });
+        rabbitMqBusFactoryConfigurator.ReceiveEndpoint(RabbitQueueName.OrderCancelRequestFailedEventQueueName, endpoint =>
+        {
+            endpoint.ConfigureConsumer<OrderCancelRequestFailedEventConsumer>(busRegistrationContext);
         });
     });
 });
