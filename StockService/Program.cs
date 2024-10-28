@@ -23,7 +23,7 @@ builder.Services.AddMassTransit(busRegistrationConfigurator =>
 
     busRegistrationConfigurator.UsingRabbitMq((busRegistrationContext, rabbitMqBusFactoryConfigurator) =>
     {
-        rabbitMqBusFactoryConfigurator.Host(builder.Configuration["RabbitMqSetting:HostAddress"], "/", hostConfigurator =>
+        rabbitMqBusFactoryConfigurator.Host(new Uri(builder.Configuration["RabbitMqSetting:HostAddress"]!), hostConfigurator =>
         {
             hostConfigurator.Username(builder.Configuration["RabbitMqSetting:Username"]);
             hostConfigurator.Password(builder.Configuration["RabbitMqSetting:Password"]);

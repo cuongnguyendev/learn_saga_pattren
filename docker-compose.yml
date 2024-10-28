@@ -1,0 +1,51 @@
+﻿version: '3.4'
+
+services:
+  messagebroker:
+    image: rabbitmq:management
+  shipdb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+  orderdb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+  stockdb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+  statemachineworkerdb:
+     image: mcr.microsoft.com/mssql/server:2019-latest
+  orderservice:
+    image: ${DOCKER_REGISTRY-}orderservice
+    build:
+      context: .
+      dockerfile: OrderService/Dockerfile
+
+  paymentservice:
+    image: ${DOCKER_REGISTRY-}paymentservice
+    build:
+      context: .
+      dockerfile: PaymentService/Dockerfile
+
+
+  shipservice:
+    image: ${DOCKER_REGISTRY-}shipservice
+    build:
+      context: .
+      dockerfile: ShipService/Dockerfile
+
+
+  statemachineworkerservice:
+    image: ${DOCKER_REGISTRY-}statemachineworkerservice
+    build:
+      context: .
+      dockerfile: StateMachineWorkerService/Dockerfile
+
+
+  stockservice:
+    image: ${DOCKER_REGISTRY-}stockservice
+    build:
+      context: .
+      dockerfile: StockService/Dockerfile
+
+volumes: #Container içerisindeki verilerin kalıcı olması için volume kullanıyoruz.
+  shipdb_volume:
+  stockdb_volume:
+  statemachineworkerdb_volume:
+  orderdb_volume:

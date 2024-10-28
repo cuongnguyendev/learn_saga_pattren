@@ -24,7 +24,7 @@ IHost host = Host.CreateDefaultBuilder(args)
                 });
             busRegistrationConfigurator.UsingRabbitMq((busRegistrationContext, rabbitMqBusFactoryConfigurator) =>
             {
-                rabbitMqBusFactoryConfigurator.Host(context.Configuration["RabbitMqSetting:HostAddress"], "/", hostConfigurator =>
+                rabbitMqBusFactoryConfigurator.Host(new Uri(context.Configuration["RabbitMqSetting:HostAddress"]!), hostConfigurator =>
                 {
                     hostConfigurator.Username(context.Configuration["RabbitMqSetting:Username"]);
                     hostConfigurator.Password(context.Configuration["RabbitMqSetting:Password"]);
