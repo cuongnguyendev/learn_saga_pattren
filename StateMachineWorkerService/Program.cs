@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using MassTransit;
-using System.Reflection;
+﻿using StateMachineWorkerService.BackgroudService;
 using StateMachineWorkerService.CustomState;
-
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(context.Configuration.GetConnectionString(nameof(OrderStateDbContext))));
+
+        services.AddScoped<ShippingRequestService>(); // Keep this as Scoped
+
         services.AddMassTransit(busRegistrationConfigurator =>
         {
             busRegistrationConfigurator.AddSagaStateMachine<OrderStateMachine, OrderStateInstance>()
@@ -37,7 +37,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             });
         });
 
-        services.AddHostedService<Worker>();
+        services.AddHostedService<Worker>(); // Worker is registered as Hosted Service
     })
     .Build();
 

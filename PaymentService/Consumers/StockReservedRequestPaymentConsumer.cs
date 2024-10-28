@@ -25,7 +25,7 @@ namespace PaymentService.Consumers
                 _logger.LogInformation("{@totalPrice} TL was withdrawn from credit card for user id={@buyerId}", context.Message.Payment.TotalPrice, context.Message.BuyerId);
 
                 await _publishEndpoint.Publish(new OrchestrationPaymentCompletedEvent(context.Message.CorrelationId));
-                await _publishEndpoint.Publish(new OrchestrationShippingRequestedEvent(context.Message.OrderId,context.Message.CorrelationId));
+               // await _publishEndpoint.Publish(new OrchestrationShippingRequestedEvent(context.Message.OrderId,context.Message.CorrelationId));
             }
             else
             {

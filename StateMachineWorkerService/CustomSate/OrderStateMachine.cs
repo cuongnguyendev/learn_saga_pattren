@@ -136,10 +136,9 @@ namespace StateMachineWorkerService.CustomState
             DuringAny(
                 When(OrderCancellationEvent)
                     .IfElse(
-                        context => context.Saga.CurrentState == "ShippingCompleted" ||
-                                   context.Saga.CurrentState == "ShippingFailed" ||
-                                   context.Saga.CurrentState == "Cancelled",
-                        shippingContext => shippingContext
+                        context => new[] { "ShippingCompleted", "ShippingFailed", "ShippingRequested", "Cancelled" }
+                        .Contains(context.Saga.CurrentState),
+                            disallowedContext => disallowedContext
                             .Publish(otherContext => new OrchestrationOrderCancelRequestFaildedEvent(otherContext.Saga.OrderId, otherContext.Saga.CurrentState)),
                         cancellableContext => cancellableContext
                             .IfElse(

@@ -97,7 +97,7 @@ namespace OrderService.Controllers
                     Province = request.Address.Province,
                     District = request.Address.District
                 },
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.UtcNow
             };
 
             request.OrderItems.ForEach(requestOrderItem =>

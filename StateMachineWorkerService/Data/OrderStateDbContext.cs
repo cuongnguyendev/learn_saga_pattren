@@ -7,7 +7,6 @@ namespace StateMachineWorkerService.Data
         public OrderStateDbContext(DbContextOptions<OrderStateDbContext> options) : base(options)
         {
         }
-
         protected override IEnumerable<ISagaClassMap> Configurations
         {
             get

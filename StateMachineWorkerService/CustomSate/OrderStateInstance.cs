@@ -20,7 +20,7 @@ namespace StateMachineWorkerService.CustomSate
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalPrice { get; set; }
 
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }= DateTime.UtcNow;
 
         public override string ToString()
         {
