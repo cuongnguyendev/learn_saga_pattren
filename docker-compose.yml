@@ -11,39 +11,38 @@ services:
     image: mcr.microsoft.com/mssql/server:2019-latest
   statemachineworkerdb:
      image: mcr.microsoft.com/mssql/server:2019-latest
+
   orderservice:
-    image: ${DOCKER_REGISTRY-}orderservice
-    build:
-      context: .
-      dockerfile: OrderService/Dockerfile
+    image: cuongnguyen161202/orderservice:latest
 
   paymentservice:
-    image: ${DOCKER_REGISTRY-}paymentservice
+    image: paymentservice
     build:
       context: .
       dockerfile: PaymentService/Dockerfile
 
 
   shipservice:
-    image: ${DOCKER_REGISTRY-}shipservice
+    image: shipservice
     build:
       context: .
       dockerfile: ShipService/Dockerfile
 
 
   statemachineworkerservice:
-    image: ${DOCKER_REGISTRY-}statemachineworkerservice
+    image: statemachineworkerservice
     build:
       context: .
       dockerfile: StateMachineWorkerService/Dockerfile
 
 
   stockservice:
-    image: ${DOCKER_REGISTRY-}stockservice
+    image: stockservice
     build:
       context: .
       dockerfile: StockService/Dockerfile
-
+  nginx:
+      image: nginx:latest
 volumes: #Container içerisindeki verilerin kalıcı olması için volume kullanıyoruz.
   shipdb_volume:
   stockdb_volume:

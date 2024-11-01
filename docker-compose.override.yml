@@ -54,8 +54,8 @@ services:
   orderservice:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_HTTP_PORTS=80
+      - ASPNETCORE_HTTPS_PORTS=443
       - ConnectionStrings__AppDbContext=Server=orderdb,1433;Database=MicroServiceDb;User=sa;Password=Password123;TrustServerCertificate=True
       - RabbitMqSetting__HostAddress=amqp://ecommerce-mq:5672
       - RabbitMqSetting__Username=guest
@@ -64,8 +64,8 @@ services:
       - messagebroker
       - orderdb
     ports:
-      - "5001:8080"
-      - "5051:8081"
+      - "5001:80"
+      - "5051:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
@@ -134,3 +134,15 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+  nginx:
+      image: nginx:latest
+      container_name: nginx-proxy
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - "/d/ely.nguyen/learn/dotnet core/Microservices/nginx.conf:/etc/nginx/nginx.conf:ro"  # Mount your Nginx config
+        - "/d/ely.nguyen/learn/dotnet core/Microservices/privkey.pem:/etc/nginx/certs/privkey.pem:ro"
+        - "/d/ely.nguyen/learn/dotnet core/Microservices/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro"
+      depends_on:
+        - orderservice
