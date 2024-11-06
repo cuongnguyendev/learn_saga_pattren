@@ -1,0 +1,5 @@
+docker build -t cuongnguyen161202/:latest -f OrderService/Dockerfile .
+docker build -t cuongnguyen161202/:latest -f ShipService/Dockerfile .
+docker build -t cuongnguyen161202/:latest -f StateMachineWorkerService/Dockerfile .
+docker build -t cuongnguyen161202/:latest -f PaymentService/Dockerfile .
+docker build -t cuongnguyen161202/:latest -f PaymentService/StockService .

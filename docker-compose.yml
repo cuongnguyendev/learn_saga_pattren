@@ -14,7 +14,10 @@ services:
 
   orderservice:
     image: cuongnguyen161202/orderservice:latest
-
+    #image: orderservice
+    # build:
+    #   context: .
+    #   dockerfile: OrderService/Dockerfile
   paymentservice:
     image: paymentservice
     build:
@@ -41,8 +44,7 @@ services:
     build:
       context: .
       dockerfile: StockService/Dockerfile
-  nginx:
-      image: nginx:latest
+  
 volumes: #Container içerisindeki verilerin kalıcı olması için volume kullanıyoruz.
   shipdb_volume:
   stockdb_volume:
