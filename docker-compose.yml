@@ -14,36 +14,40 @@ services:
 
   orderservice:
     image: cuongnguyen161202/orderservice:latest
-    #image: orderservice
+    # image: orderservice
+    # build:
+    #    context: .
+    #    dockerfile: OrderService/Dockerfile
+  paymentservice:
+    image: cuongnguyen161202/paymentservice:latest
+    # image: paymentservice
     # build:
     #   context: .
-    #   dockerfile: OrderService/Dockerfile
-  paymentservice:
-    image: paymentservice
-    build:
-      context: .
-      dockerfile: PaymentService/Dockerfile
+    #   dockerfile: PaymentService/Dockerfile
 
 
   shipservice:
-    image: shipservice
-    build:
-      context: .
-      dockerfile: ShipService/Dockerfile
+    image: cuongnguyen161202/shipservice:latest
+    # image: shipservice
+    # build:
+    #   context: .
+    #   dockerfile: ShipService/Dockerfile
 
 
   statemachineworkerservice:
-    image: statemachineworkerservice
-    build:
-      context: .
-      dockerfile: StateMachineWorkerService/Dockerfile
+    image: cuongnguyen161202/statemachineworkerservice:latest
+    # image: statemachineworkerservice
+    # build:
+    #   context: .
+    #   dockerfile: StateMachineWorkerService/Dockerfile
 
 
   stockservice:
-    image: stockservice
-    build:
-      context: .
-      dockerfile: StockService/Dockerfile
+    image: cuongnguyen161202/stockservice:latest
+    # image: stockservice
+    # build:
+    #   context: .
+    #   dockerfile: StockService/Dockerfile
   
 volumes: #Container içerisindeki verilerin kalıcı olması için volume kullanıyoruz.
   shipdb_volume:

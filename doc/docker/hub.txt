@@ -1,5 +1,14 @@
-docker build -t cuongnguyen161202/:latest -f OrderService/Dockerfile .
-docker build -t cuongnguyen161202/:latest -f ShipService/Dockerfile .
-docker build -t cuongnguyen161202/:latest -f StateMachineWorkerService/Dockerfile .
-docker build -t cuongnguyen161202/:latest -f PaymentService/Dockerfile .
-docker build -t cuongnguyen161202/:latest -f PaymentService/StockService .
+docker build --progress=plain -t cuongnguyen161202/orderservice:latest -f OrderService/Dockerfile .
+docker push cuongnguyen161202/stockservice
+
+docker build --progress=plain -t cuongnguyen161202/shipservice:latest -f ShipService/Dockerfile .
+docker push cuongnguyen161202/shipservice
+
+docker build --progress=plain -t cuongnguyen161202/statemachineworkerservice:latest -f StateMachineWorkerService/Dockerfile .
+docker push cuongnguyen161202/statemachineworkerservice
+
+docker build --progress=plain -t cuongnguyen161202/paymentservice:latest -f PaymentService/Dockerfile .
+docker push cuongnguyen161202/paymentservice
+
+docker build --progress=plain -t cuongnguyen161202/stockservice:latest -f StockService/Dockerfile .
+docker push cuongnguyen161202/stockservice
