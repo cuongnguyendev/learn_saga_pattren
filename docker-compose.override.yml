@@ -63,6 +63,7 @@ services:
     depends_on:
       - messagebroker
       - orderdb
+    restart: always
     ports:
       - "5001:80"
       - "5051:443"
@@ -79,6 +80,7 @@ services:
       - RabbitMqSetting__Password=guest
     depends_on:
       - messagebroker
+    restart: always
     ports:
       - "5002:80"
       - "5052:443"
@@ -99,6 +101,7 @@ services:
     depends_on:
       - messagebroker
       - shipdb
+    restart: always
     ports:
       - "5003:80"
       - "5053:443"
@@ -114,6 +117,7 @@ services:
       - RabbitMqSetting__HostAddress=amqp://ecommerce-mq:5672
       - RabbitMqSetting__Username=guest
       - RabbitMqSetting__Password=guest
+    restart: always
     depends_on:
       - messagebroker
       - statemachineworkerdb
@@ -129,6 +133,7 @@ services:
     depends_on:
       - messagebroker
       - stockdb
+    restart: always
     ports:
       - "5004:80"
       - "5054:443"
