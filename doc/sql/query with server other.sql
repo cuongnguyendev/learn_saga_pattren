@@ -7,3 +7,6 @@ EXEC sp_addlinkedserver
 
 	SELECT * 
 FROM OPENQUERY(RemoteStockService, 'SELECT * FROM StockService.dbo.Stocks');
+
+INSERT INTO [RemoteStockService].[StockService].[dbo].[Stocks] (ProductId,Count)
+VALUES ( 101, 200);
